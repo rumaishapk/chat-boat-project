@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
         const batchSize = 50;
         for (let i = 0; i < vectors.length; i += batchSize) {
           const batch = vectors.slice(i, i + batchSize);
-          await pineconeIndex.upsert(batch);
+          await pineconeIndex.upsert({ records: batch });
         }
         console.log(`Successfully upserted ${vectors.length} vectors to Pinecone.`);
       }
