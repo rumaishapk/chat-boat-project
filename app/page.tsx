@@ -31,6 +31,7 @@ type ChatSubmit = {
 
 const initialMessages: Message[] = [
   { role: "ai", text: "Hello! Where should we start?" },
+  
 ];
 
 const STREAM_WORD_DELAY_MS = 35;
@@ -295,7 +296,7 @@ export default function Homepage() {
                 }`}
               >
                 <p className="mb-1 text-xs font-bold uppercase text-gray-400">
-                  {msg.role === "user" ? "You" : "RumiGPT"}
+                  {msg.role === "user" ? "You" : "ChatBoat"}
                 </p>
                 {msg.fileName ? (
                   <div className="mb-3 inline-flex max-w-full items-center gap-2 rounded-lg border border-white/10 bg-[#3a3a3a] px-3 py-2 text-sm text-gray-100">
