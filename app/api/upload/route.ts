@@ -47,11 +47,21 @@ export async function POST(req: NextRequest) {
     const documentId = uploadResponse.fileId;
 
     // 2. Extract Text from PDF
+    // 2. Extract Text from PDF
     let extractedText = "";
     try {
-      const pdfParse = require("pdf-parse");
-      const pdfData = await pdfParse(buffer);
-      extractedText = pdfData.text || "";
+      const pdfModule = require("pdf-parse");
+      const parseFunction = typeof pdfModule === "function" ? pdfModule : (pdfModule.default || pdfModule.PDFExtract || pdfModule.parse);
+
+      if (typeof parseFunction === "function") {
+        const pdfData = await parseFunction(buffer);
+        extractedText = pdfData.text || "";
+      } else if (pdfModule.PDFParser) {
+        const parser = new pdfModule.PDFParser();
+        const pdfData = await parser.parseBuffer(buffer);
+        extractedText = pdfData.text || "";
+      }
+      
       console.log(`Extracted ${extractedText.length} characters from PDF.`);
     } catch (parseErr: any) {
       console.error("PDF parse error:", parseErr);
