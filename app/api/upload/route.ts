@@ -48,21 +48,22 @@ export async function POST(req: NextRequest) {
 
     // 2. Extract Text from PDF
     // 2. Extract Text from PDF
+    // 2. Extract Text from PDF using pdf2json (Pure JS, no native canvas needed)
     let extractedText = "";
     try {
-      const pdfModule = require("pdf-parse");
-      const parseFunction = typeof pdfModule === "function" ? pdfModule : (pdfModule.default || pdfModule.PDFExtract || pdfModule.parse);
+      const PDFParser = require("pdf2json");
+      const pdfParser = new PDFParser(null, 1);
 
-      if (typeof parseFunction === "function") {
-        const pdfData = await parseFunction(buffer);
-        extractedText = pdfData.text || "";
-      } else if (pdfModule.PDFParser) {
-        const parser = new pdfModule.PDFParser();
-        const pdfData = await parser.parseBuffer(buffer);
-        extractedText = pdfData.text || "";
-      }
-      
-      console.log(`Extracted ${extractedText.length} characters from PDF.`);
+      extractedText = await new Promise<string>((resolve, reject) => {
+        pdfParser.on("pdfParser_dataError", (errData: any) => reject(errData.parserError));
+        pdfParser.on("pdfParser_dataReady", () => {
+          const rawText = pdfParser.getRawTextContent();
+          resolve(rawText || "");
+        });
+        pdfParser.parseBuffer(buffer);
+      });
+
+      console.log(`Extracted ${extractedText.trim().length} characters from PDF.`);
     } catch (parseErr: any) {
       console.error("PDF parse error:", parseErr);
     }
